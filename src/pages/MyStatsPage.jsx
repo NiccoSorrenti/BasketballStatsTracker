@@ -16,6 +16,9 @@ const MyStatsPage = () => {
 
   useEffect(() => {
     localStorage.setItem('games', JSON.stringify(games));
+
+    //notifica altre pagine
+    window.dispatchEvent(new Event('gamesUpdated'));
   }, [games]);
 
   const addGame = (newGame) => {

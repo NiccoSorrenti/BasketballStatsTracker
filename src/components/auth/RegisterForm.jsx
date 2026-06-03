@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { register } from '../../services/authService';
-import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const RegisterForm = () => {
   const [userData, setUserData] = useState({
@@ -10,6 +9,11 @@ const RegisterForm = () => {
     password: '',
   });
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const navigate = useNavigate();
+
   const handleChange = (e) => {
     setUserData({
       ...userData,
@@ -17,60 +21,53 @@ const RegisterForm = () => {
     });
   };
 
-  //   const handleSubmit = async (e) => {
-  //     e.preventDefault();
-
-  //     try {
-  //       const response = await register(userData);
-
-  //       console.log(response.data);
-  //     } catch (error) {
-  //       console.error(error);
-  //     }
-  //   };
-
-  const navigate = useNavigate();
-
   const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // localStorage.setItem('username', userData.username);
-    // localStorage.setItem('email', userData.email);
+    setError('');
 
     if (!userData.username || !userData.email || !userData.password) {
-      alert('Please fill all fields');
-
+      setError('Compila tutti i campi');
       return;
     }
 
     if (!passwordRegex.test(userData.password)) {
-      alert(
-        'Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number and one special character.',
+      setError(
+        'Password non valida (min 8 char, maiuscola, minuscola, numero, simbolo)',
       );
-
       return;
     }
 
-    localStorage.setItem('registeredUser', JSON.stringify(userData));
+    try {
+      setLoading(true);
 
-    alert('Registration successful');
+      const response = await register(userData);
 
-    setUserData({
-      username: '',
-      email: '',
-      password: '',
-    });
+      console.log('REGISTER OK:', response.data);
 
-    navigate('/');
+      // NON salvare password in locale
+      // eventualmente puoi salvare solo email o token (quando avrai JWT)
+
+      alert('Registrazione completata! Ora fai login');
+
+      navigate('/');
+    } catch (err) {
+      console.error(err);
+      setError(
+        err?.response?.data?.message || 'Errore durante la registrazione',
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <form onSubmit={handleSubmit}>
+      {error && <div className="alert alert-danger">{error}</div>}
+
       <div className="mb-3">
         <label className="form-label">Username</label>
-
         <input
           type="text"
           name="username"
@@ -82,7 +79,6 @@ const RegisterForm = () => {
 
       <div className="mb-3">
         <label className="form-label">Email</label>
-
         <input
           type="email"
           name="email"
@@ -94,7 +90,6 @@ const RegisterForm = () => {
 
       <div className="mb-3">
         <label className="form-label">Password</label>
-
         <input
           type="password"
           name="password"
@@ -104,8 +99,12 @@ const RegisterForm = () => {
         />
       </div>
 
-      <button type="submit" className="btn btn-warning w-100">
-        Register
+      <button
+        type="submit"
+        className="btn btn-warning w-100"
+        disabled={loading}
+      >
+        {loading ? 'Registrazione...' : 'Register'}
       </button>
 
       <p className="text-center mt-3 mb-0">

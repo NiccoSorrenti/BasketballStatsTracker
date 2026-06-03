@@ -18,39 +18,23 @@ const LoginForm = () => {
 
   const navigate = useNavigate();
 
-  //   const handleSubmit = (e) => {
-  //     e.preventDefault();
-
-  //     localStorage.setItem('isLoggedIn', 'true');
-  //     localStorage.setItem('email', credentials.email);
-
-  //     navigate('/dashboard');
-  //   };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const savedUser = JSON.parse(localStorage.getItem('registeredUser'));
+    try {
+      const response = await login(credentials);
 
-    console.log(savedUser);
+      console.log('response:', response);
+      console.log('response.data:', response?.data);
+      console.log('token:', response?.data?.token);
 
-    if (!savedUser) {
-      alert('No user registered');
-      return;
-    }
+      const token = response.data.token;
 
-    if (
-      credentials.email === savedUser.email &&
-      credentials.password === savedUser.password
-    ) {
-      localStorage.setItem('isLoggedIn', 'true');
-
-      localStorage.setItem('username', savedUser.username);
-
-      localStorage.setItem('email', savedUser.email);
+      localStorage.setItem('token', token);
 
       navigate('/dashboard');
-    } else {
+    } catch (error) {
+      console.error(error);
       alert('Invalid credentials');
     }
   };

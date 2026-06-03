@@ -1,37 +1,42 @@
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { getMe } from '../../services/userService';
 
 const Navbar = () => {
-  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await getMe();
+        setUser(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('isLoggedIn');
-
-    navigate('/');
+    localStorage.removeItem('token');
+    window.location.href = '/';
   };
 
   return (
-    <nav className="navbar navbar-dark custom-navbar px-4">
-      <div className="container-fluid d-flex justify-content-between">
-        <span className="navbar-brand mb-0 h1 text-orange">
-          Basketball Stats Tracker
-        </span>
+    <nav className="navbar navbar-dark bg-dark px-3">
+      <span className="navbar-brand">Basketball Stats Tracker</span>
 
-        <div className="d-flex align-items-center gap-3">
-          <span className="text-white">Welcome, User</span>
+      <div className="d-flex align-items-center gap-3">
+        {user && (
+          <span className="text-white">Welcome, {user.username} 👋</span>
+        )}
 
-          <img
-            src="https://i.pravatar.cc/40"
-            alt="avatar"
-            className="rounded-circle"
-          />
-
-          <button
-            className="btn btn-outline-warning btn-sm"
-            onClick={handleLogout}
-          >
-            Logout
-          </button>
-        </div>
+        <button
+          className="btn btn-outline-warning btn-sm"
+          onClick={handleLogout}
+        >
+          Logout
+        </button>
       </div>
     </nav>
   );

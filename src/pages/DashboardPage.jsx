@@ -1,50 +1,56 @@
 import { useState, useEffect } from 'react';
 
 import DashboardLayout from '../components/layout/DashboardLayout';
-
 import DashboardCards from '../components/dashboard/DashboardCards';
-
 import RecentGames from '../components/dashboard/RecentGames';
-
 import PerformanceChart from '../components/charts/PerformanceChart';
 
 const DashboardPage = () => {
-  const [games, setGames] = useState(() => {
-    const savedGames = localStorage.getItem('games');
+  const [games, setGames] = useState([]);
 
-    console.log('Games caricati dal localStorage:', savedGames);
-
-    return savedGames ? JSON.parse(savedGames) : [];
-  });
-
-  // Salva automaticamente ogni modifica
+  // 📥 iniziale + sync con MyStats
   useEffect(() => {
-    localStorage.setItem('games', JSON.stringify(games));
-  }, [games]);
+    const syncGames = () => {
+      const savedGames = localStorage.getItem('games');
+
+      if (savedGames) {
+        setGames(JSON.parse(savedGames));
+      } else {
+        setGames([]);
+      }
+    };
+
+    syncGames(); // primo load
+
+    window.addEventListener('gamesUpdated', syncGames);
+
+    return () => {
+      window.removeEventListener('gamesUpdated', syncGames);
+    };
+  }, []);
 
   const totalGames = games.length;
 
   const avgPoints =
-    games.length > 0
+    totalGames > 0
       ? (
-          games.reduce((sum, game) => sum + Number(game.points), 0) /
-          games.length
+          games.reduce((sum, game) => sum + Number(game.points), 0) / totalGames
         ).toFixed(1)
       : 0;
 
   const avgAssists =
-    games.length > 0
+    totalGames > 0
       ? (
           games.reduce((sum, game) => sum + Number(game.assists), 0) /
-          games.length
+          totalGames
         ).toFixed(1)
       : 0;
 
   const avgRebounds =
-    games.length > 0
+    totalGames > 0
       ? (
           games.reduce((sum, game) => sum + Number(game.rebounds), 0) /
-          games.length
+          totalGames
         ).toFixed(1)
       : 0;
 

@@ -1,9 +1,41 @@
+import { useEffect, useState } from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
+import { getMe } from '../services/userService';
 
 const ProfilePage = () => {
-  const username = localStorage.getItem('username') || 'User';
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const email = localStorage.getItem('email') || 'No email available';
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await getMe();
+        setUser(response.data);
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <h3 className="text-white">Loading profile...</h3>
+      </DashboardLayout>
+    );
+  }
+
+  if (!user) {
+    return (
+      <DashboardLayout>
+        <h3 className="text-white">No user data available</h3>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -18,9 +50,9 @@ const ProfilePage = () => {
           />
         </div>
 
-        <h3 className="text-center">{username}</h3>
+        <h3 className="text-center">{user.username}</h3>
 
-        <p className="text-center text-secondary">{email}</p>
+        <p className="text-center text-secondary">{user.email}</p>
       </div>
     </DashboardLayout>
   );
