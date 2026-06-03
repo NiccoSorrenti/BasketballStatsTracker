@@ -9,7 +9,7 @@ import RegisterPage from './pages/RegisterPage';
 import ProtectedRoute from './routes/ProtectedRoute';
 import MyStatsPage from './pages/MyStatsPage';
 import ProfilePage from './pages/ProfilePage';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider } from './contexts/AuthContext';
 
 function App() {
   return (

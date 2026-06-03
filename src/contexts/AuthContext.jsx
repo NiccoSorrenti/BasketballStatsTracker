@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 
 const AuthContext = createContext();
 
@@ -8,41 +8,34 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [loading, setLoading] = useState(true);
 
-  // login
-  const login = async (token) => {
-    localStorage.setItem('token', token);
-    setToken(token);
+  const login = async (jwt) => {
+    localStorage.setItem('token', jwt);
+    setToken(jwt);
   };
 
-  // logout
   const logout = () => {
     localStorage.removeItem('token');
     setToken(null);
     setUser(null);
   };
 
-  // fetch user (/me)
-  const fetchUser = async (jwt) => {
+  const fetchUser = async () => {
     try {
-      const res = await axios.get('http://localhost:8080/users/me', {
-        headers: {
-          Authorization: `Bearer ${jwt}`,
-        },
-      });
+      const response = await api.get('/users/me');
 
-      setUser(res.data);
-    } catch (err) {
-      console.error('Errore fetch user', err);
+      setUser(response.data);
+    } catch (error) {
+      console.error('Errore fetch user', error);
       logout();
     }
   };
 
-  // auto-login su refresh
   useEffect(() => {
     const init = async () => {
       if (token) {
-        await fetchUser(token);
+        await fetchUser();
       }
+
       setLoading(false);
     };
 

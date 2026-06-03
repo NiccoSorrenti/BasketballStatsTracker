@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { login } from '../../services/authService';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import { login as loginService } from '../../services/authService';
 
 const LoginForm = () => {
   const [credentials, setCredentials] = useState({
@@ -18,23 +20,41 @@ const LoginForm = () => {
 
   const navigate = useNavigate();
 
+  //   const handleSubmit = async (e) => {
+  //     e.preventDefault();
+
+  //     try {
+  //       const response = await login(credentials);
+
+  //       console.log('response:', response);
+  //       console.log('response.data:', response?.data);
+  //       console.log('token:', response?.data?.token);
+
+  //       const token = response.data.token;
+
+  //       localStorage.setItem('token', token);
+
+  //       navigate('/dashboard');
+  //     } catch (error) {
+  //       console.error(error);
+  //       alert('Invalid credentials');
+  //     }
+  //   };
+
+  const { login } = useAuth();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await login(credentials);
+      const data = await loginService(credentials);
 
-      console.log('response:', response);
-      console.log('response.data:', response?.data);
-      console.log('token:', response?.data?.token);
-
-      const token = response.data.token;
-
-      localStorage.setItem('token', token);
+      await login(data.token);
 
       navigate('/dashboard');
     } catch (error) {
       console.error(error);
+
       alert('Invalid credentials');
     }
   };

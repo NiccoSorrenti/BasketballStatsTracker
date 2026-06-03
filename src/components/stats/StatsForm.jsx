@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 
 const StatsForm = ({
   addGame,
+  saveEditedGame,
   games,
-  setGames,
   editingIndex,
   setEditingIndex,
 }) => {
@@ -13,10 +13,15 @@ const StatsForm = ({
     rebounds: '',
   });
 
-  // Riempie il form quando clicchi EDIT
   useEffect(() => {
     if (editingIndex !== null) {
-      setFormData(games[editingIndex]);
+      const gameToEdit = games[editingIndex];
+
+      setFormData({
+        points: gameToEdit.points,
+        assists: gameToEdit.assists,
+        rebounds: gameToEdit.rebounds,
+      });
     }
   }, [editingIndex, games]);
 
@@ -27,10 +32,9 @@ const StatsForm = ({
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // VALIDAZIONE
     if (
       formData.points === '' ||
       formData.assists === '' ||
@@ -40,22 +44,12 @@ const StatsForm = ({
       return;
     }
 
-    // EDIT MODE
     if (editingIndex !== null) {
-      const updatedGames = [...games];
-
-      updatedGames[editingIndex] = formData;
-
-      setGames(updatedGames);
-
-      setEditingIndex(null);
-    }
-    // CREATE MODE
-    else {
-      addGame(formData);
+      await saveEditedGame(formData);
+    } else {
+      await addGame(formData);
     }
 
-    // RESET FORM
     setFormData({
       points: '',
       assists: '',

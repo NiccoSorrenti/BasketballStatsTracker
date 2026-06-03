@@ -5,28 +5,22 @@ import DashboardCards from '../components/dashboard/DashboardCards';
 import RecentGames from '../components/dashboard/RecentGames';
 import PerformanceChart from '../components/charts/PerformanceChart';
 
+import { getGames } from '../services/gameStatService';
+
 const DashboardPage = () => {
   const [games, setGames] = useState([]);
 
-  // 📥 iniziale + sync con MyStats
   useEffect(() => {
-    const syncGames = () => {
-      const savedGames = localStorage.getItem('games');
-
-      if (savedGames) {
-        setGames(JSON.parse(savedGames));
-      } else {
-        setGames([]);
+    const loadGames = async () => {
+      try {
+        const response = await getGames();
+        setGames(response.data);
+      } catch (error) {
+        console.error('Error loading games:', error);
       }
     };
 
-    syncGames(); // primo load
-
-    window.addEventListener('gamesUpdated', syncGames);
-
-    return () => {
-      window.removeEventListener('gamesUpdated', syncGames);
-    };
+    loadGames();
   }, []);
 
   const totalGames = games.length;
