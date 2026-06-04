@@ -9,12 +9,28 @@ const RecentGames = ({ games }) => {
         <p className="text-secondary mb-0">No recent games.</p>
       ) : (
         <ul className="list-group list-group-flush">
-          {recentGames.map((game, index) => (
+          {recentGames.map((game) => (
             <li
-              key={index}
+              key={game.id}
               className="list-group-item bg-dark text-white border-secondary"
             >
-              {game.points} PTS / {game.assists} AST / {game.rebounds} REB
+              <div className="d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>vs {game.opponentTeam}</strong>
+
+                  <span
+                    className={`ms-2 fw-bold ${
+                      game.result === 'WIN' ? 'text-success' : 'text-danger'
+                    }`}
+                  >
+                    {game.result}
+                  </span>
+                </div>
+
+                <span>
+                  {game.points} PTS • {game.assists} AST • {game.rebounds} REB
+                </span>
+              </div>
             </li>
           ))}
         </ul>

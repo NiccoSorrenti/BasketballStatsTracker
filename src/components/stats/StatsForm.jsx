@@ -1,5 +1,38 @@
 import { useState, useEffect } from 'react';
 
+const nbaTeams = [
+  'Atlanta Hawks',
+  'Boston Celtics',
+  'Brooklyn Nets',
+  'Charlotte Hornets',
+  'Chicago Bulls',
+  'Cleveland Cavaliers',
+  'Dallas Mavericks',
+  'Denver Nuggets',
+  'Detroit Pistons',
+  'Golden State Warriors',
+  'Houston Rockets',
+  'Indiana Pacers',
+  'LA Clippers',
+  'Los Angeles Lakers',
+  'Memphis Grizzlies',
+  'Miami Heat',
+  'Milwaukee Bucks',
+  'Minnesota Timberwolves',
+  'New Orleans Pelicans',
+  'New York Knicks',
+  'Oklahoma City Thunder',
+  'Orlando Magic',
+  'Philadelphia 76ers',
+  'Phoenix Suns',
+  'Portland Trail Blazers',
+  'Sacramento Kings',
+  'San Antonio Spurs',
+  'Toronto Raptors',
+  'Utah Jazz',
+  'Washington Wizards',
+];
+
 const StatsForm = ({
   addGame,
   saveEditedGame,
@@ -11,6 +44,8 @@ const StatsForm = ({
     points: '',
     assists: '',
     rebounds: '',
+    opponentTeam: '',
+    result: '',
   });
 
   useEffect(() => {
@@ -21,6 +56,8 @@ const StatsForm = ({
         points: gameToEdit.points,
         assists: gameToEdit.assists,
         rebounds: gameToEdit.rebounds,
+        opponentTeam: gameToEdit.opponentTeam || '',
+        result: gameToEdit.result || '',
       });
     }
   }, [editingIndex, games]);
@@ -32,13 +69,25 @@ const StatsForm = ({
     });
   };
 
+  const resetForm = () => {
+    setFormData({
+      points: '',
+      assists: '',
+      rebounds: '',
+      opponentTeam: '',
+      result: '',
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (
       formData.points === '' ||
       formData.assists === '' ||
-      formData.rebounds === ''
+      formData.rebounds === '' ||
+      formData.opponentTeam === '' ||
+      formData.result === ''
     ) {
       alert('Please fill all fields');
       return;
@@ -50,11 +99,7 @@ const StatsForm = ({
       await addGame(formData);
     }
 
-    setFormData({
-      points: '',
-      assists: '',
-      rebounds: '',
-    });
+    resetForm();
   };
 
   return (
@@ -65,7 +110,7 @@ const StatsForm = ({
 
       <form onSubmit={handleSubmit}>
         <div className="row g-3">
-          <div className="col-md-4">
+          <div className="col-md-3">
             <input
               type="number"
               name="points"
@@ -76,7 +121,7 @@ const StatsForm = ({
             />
           </div>
 
-          <div className="col-md-4">
+          <div className="col-md-3">
             <input
               type="number"
               name="assists"
@@ -87,7 +132,7 @@ const StatsForm = ({
             />
           </div>
 
-          <div className="col-md-4">
+          <div className="col-md-3">
             <input
               type="number"
               name="rebounds"
@@ -96,6 +141,36 @@ const StatsForm = ({
               value={formData.rebounds}
               onChange={handleChange}
             />
+          </div>
+
+          <div className="col-md-3">
+            <select
+              name="opponentTeam"
+              className="form-select"
+              value={formData.opponentTeam}
+              onChange={handleChange}
+            >
+              <option value="">Opponent Team</option>
+
+              {nbaTeams.map((team) => (
+                <option key={team} value={team}>
+                  {team}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="col-md-3">
+            <select
+              name="result"
+              className="form-select"
+              value={formData.result}
+              onChange={handleChange}
+            >
+              <option value="">Result</option>
+              <option value="WIN">Win</option>
+              <option value="LOSS">Loss</option>
+            </select>
           </div>
         </div>
 
@@ -110,12 +185,7 @@ const StatsForm = ({
               className="btn btn-secondary ms-2"
               onClick={() => {
                 setEditingIndex(null);
-
-                setFormData({
-                  points: '',
-                  assists: '',
-                  rebounds: '',
-                });
+                resetForm();
               }}
             >
               Cancel

@@ -10,6 +10,7 @@ import ProtectedRoute from './routes/ProtectedRoute';
 import MyStatsPage from './pages/MyStatsPage';
 import ProfilePage from './pages/ProfilePage';
 import { AuthProvider } from './contexts/AuthContext';
+import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
   return (
@@ -43,6 +44,8 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

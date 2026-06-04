@@ -15,3 +15,7 @@ export const updateGame = (id, gameData) => {
 export const deleteGame = (id) => {
   return api.delete(`/games/${id}`);
 };
+
+export const getGamesSummary = () => {
+  return api.get('/games/summary');
+};

@@ -8,6 +8,7 @@ const StatsTable = ({ games, deleteGame, editGame }) => {
       </div>
     );
   }
+
   return (
     <div className="card bg-dark text-white p-4 border-0 shadow">
       <h3 className="mb-4">My Games</h3>
@@ -15,6 +16,8 @@ const StatsTable = ({ games, deleteGame, editGame }) => {
       <table className="table table-dark table-hover">
         <thead>
           <tr>
+            <th>Result</th>
+            <th>Opponent</th>
             <th>Points</th>
             <th>Assists</th>
             <th>Rebounds</th>
@@ -24,7 +27,17 @@ const StatsTable = ({ games, deleteGame, editGame }) => {
 
         <tbody>
           {games.map((game, index) => (
-            <tr key={index}>
+            <tr key={game.id || index}>
+              <td>
+                <span
+                  className={
+                    game.result === 'WIN' ? 'text-success' : 'text-danger'
+                  }
+                >
+                  {game.result}
+                </span>
+              </td>
+              <td>{game.opponentTeam}</td>
               <td>{game.points}</td>
               <td>{game.assists}</td>
               <td>{game.rebounds}</td>
