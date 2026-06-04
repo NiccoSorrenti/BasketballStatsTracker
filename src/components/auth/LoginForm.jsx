@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { login } from '../../services/authService';
-import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+
 import { useAuth } from '../../contexts/AuthContext';
 import { login as loginService } from '../../services/authService';
 
@@ -11,6 +10,11 @@ const LoginForm = () => {
     password: '',
   });
 
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const navigate = useNavigate();
+  const { login } = useAuth();
+
   const handleChange = (e) => {
     setCredentials({
       ...credentials,
@@ -18,35 +22,12 @@ const LoginForm = () => {
     });
   };
 
-  const navigate = useNavigate();
-
-  //   const handleSubmit = async (e) => {
-  //     e.preventDefault();
-
-  //     try {
-  //       const response = await login(credentials);
-
-  //       console.log('response:', response);
-  //       console.log('response.data:', response?.data);
-  //       console.log('token:', response?.data?.token);
-
-  //       const token = response.data.token;
-
-  //       localStorage.setItem('token', token);
-
-  //       navigate('/dashboard');
-  //     } catch (error) {
-  //       console.error(error);
-  //       alert('Invalid credentials');
-  //     }
-  //   };
-
-  const { login } = useAuth();
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
+      setErrorMessage('');
+
       const data = await loginService(credentials);
 
       await login(data.token);
@@ -55,44 +36,60 @@ const LoginForm = () => {
     } catch (error) {
       console.error(error);
 
-      alert('Invalid credentials');
+      if (error.response?.status === 401) {
+        setErrorMessage('Invalid email or password.');
+      } else {
+        setErrorMessage(
+          'Unable to connect to the server. Please try again later.',
+        );
+      }
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div className="mb-3">
-        <label className="form-label">Email</label>
+    <>
+      {errorMessage && (
+        <div className="alert alert-danger" role="alert">
+          {errorMessage}
+        </div>
+      )}
 
-        <input
-          type="email"
-          name="email"
-          className="form-control"
-          value={credentials.email}
-          onChange={handleChange}
-        />
-      </div>
+      <form onSubmit={handleSubmit}>
+        <div className="mb-3">
+          <label className="form-label">Email</label>
 
-      <div className="mb-3">
-        <label className="form-label">Password</label>
+          <input
+            type="email"
+            name="email"
+            className="form-control"
+            value={credentials.email}
+            onChange={handleChange}
+            required
+          />
+        </div>
 
-        <input
-          type="password"
-          name="password"
-          className="form-control"
-          value={credentials.password}
-          onChange={handleChange}
-        />
-      </div>
+        <div className="mb-3">
+          <label className="form-label">Password</label>
 
-      <button type="submit" className="btn btn-warning w-100">
-        Login
-      </button>
+          <input
+            type="password"
+            name="password"
+            className="form-control"
+            value={credentials.password}
+            onChange={handleChange}
+            required
+          />
+        </div>
 
-      <p className="text-center mt-3 mb-0">
-        Don't have an account? <Link to="/register">Register</Link>
-      </p>
-    </form>
+        <button type="submit" className="btn btn-warning w-100">
+          Login
+        </button>
+
+        <p className="text-center mt-3 mb-0">
+          Don't have an account? <Link to="/register">Register</Link>
+        </p>
+      </form>
+    </>
   );
 };
 

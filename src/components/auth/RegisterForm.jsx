@@ -9,108 +9,134 @@ const RegisterForm = () => {
     password: '',
   });
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const navigate = useNavigate();
+
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
 
   const handleChange = (e) => {
     setUserData({
       ...userData,
       [e.target.name]: e.target.value,
     });
-  };
 
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+    setErrorMessage('');
+    setSuccessMessage('');
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+
+    setErrorMessage('');
+    setSuccessMessage('');
 
     if (!userData.username || !userData.email || !userData.password) {
-      setError('Compila tutti i campi');
+      setErrorMessage('Please fill all fields.');
       return;
     }
 
     if (!passwordRegex.test(userData.password)) {
-      setError(
-        'Password non valida (min 8 char, maiuscola, minuscola, numero, simbolo)',
+      setErrorMessage(
+        'Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number and one special character.',
       );
       return;
     }
 
     try {
-      setLoading(true);
+      await register(userData);
 
-      const response = await register(userData);
+      setSuccessMessage('Account created successfully. You can now log in.');
 
-      console.log('REGISTER OK:', response.data);
+      setUserData({
+        username: '',
+        email: '',
+        password: '',
+      });
 
-      // NON salvare password in locale
-      // eventualmente puoi salvare solo email o token (quando avrai JWT)
+      setTimeout(() => {
+        navigate('/');
+      }, 1500);
+    } catch (error) {
+      const backendMessage = error.response?.data?.message;
 
-      alert('Registrazione completata! Ora fai login');
-
-      navigate('/');
-    } catch (err) {
-      console.error(err);
-      setError(
-        err?.response?.data?.message || 'Errore durante la registrazione',
-      );
-    } finally {
-      setLoading(false);
+      if (backendMessage === 'Username already exists') {
+        setErrorMessage('Username already exists.');
+      } else if (backendMessage === 'Email already exists') {
+        setErrorMessage('Email already exists.');
+      } else {
+        setErrorMessage('Unable to create account. Please try again.');
+      }
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      {error && <div className="alert alert-danger">{error}</div>}
+    <>
+      {successMessage && (
+        <div className="alert alert-success" role="alert">
+          {successMessage}
+        </div>
+      )}
 
-      <div className="mb-3">
-        <label className="form-label">Username</label>
-        <input
-          type="text"
-          name="username"
-          className="form-control"
-          value={userData.username}
-          onChange={handleChange}
-        />
-      </div>
+      {errorMessage && (
+        <div className="alert alert-danger" role="alert">
+          {errorMessage}
+        </div>
+      )}
 
-      <div className="mb-3">
-        <label className="form-label">Email</label>
-        <input
-          type="email"
-          name="email"
-          className="form-control"
-          value={userData.email}
-          onChange={handleChange}
-        />
-      </div>
+      <form onSubmit={handleSubmit} autoComplete="off">
+        <div className="mb-3">
+          <label className="form-label">Username</label>
 
-      <div className="mb-3">
-        <label className="form-label">Password</label>
-        <input
-          type="password"
-          name="password"
-          className="form-control"
-          value={userData.password}
-          onChange={handleChange}
-        />
-      </div>
+          <input
+            type="text"
+            name="username"
+            className="form-control"
+            value={userData.username}
+            onChange={handleChange}
+            required
+            autoComplete="off"
+          />
+        </div>
 
-      <button
-        type="submit"
-        className="btn btn-warning w-100"
-        disabled={loading}
-      >
-        {loading ? 'Registrazione...' : 'Register'}
-      </button>
+        <div className="mb-3">
+          <label className="form-label">Email</label>
 
-      <p className="text-center mt-3 mb-0">
-        Already have an account? <Link to="/">Login</Link>
-      </p>
-    </form>
+          <input
+            type="email"
+            name="email"
+            className="form-control"
+            value={userData.email}
+            onChange={handleChange}
+            required
+            autoComplete="off"
+          />
+        </div>
+
+        <div className="mb-3">
+          <label className="form-label">Password</label>
+
+          <input
+            type="password"
+            name="password"
+            className="form-control"
+            value={userData.password}
+            onChange={handleChange}
+            required
+            autoComplete="new-password"
+          />
+        </div>
+
+        <button type="submit" className="btn btn-warning w-100">
+          Register
+        </button>
+
+        <p className="text-center mt-3 mb-0">
+          Already have an account? <Link to="/">Login</Link>
+        </p>
+      </form>
+    </>
   );
 };
 

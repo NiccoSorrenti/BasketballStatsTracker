@@ -41,12 +41,15 @@ const StatsForm = ({
   setEditingIndex,
 }) => {
   const [formData, setFormData] = useState({
-    points: '',
-    assists: '',
-    rebounds: '',
+    points: 0,
+    assists: 0,
+    rebounds: 0,
     opponentTeam: '',
     result: '',
   });
+
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     if (editingIndex !== null) {
@@ -59,21 +62,40 @@ const StatsForm = ({
         opponentTeam: gameToEdit.opponentTeam || '',
         result: gameToEdit.result || '',
       });
+
+      setErrorMessage('');
+      setSuccessMessage('');
     }
   }, [editingIndex, games]);
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setErrorMessage('');
+    setSuccessMessage('');
+
+    if (name === 'points' || name === 'assists' || name === 'rebounds') {
+      const numericValue = Math.max(0, Number(value));
+
+      setFormData({
+        ...formData,
+        [name]: numericValue,
+      });
+
+      return;
+    }
+
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
   };
 
   const resetForm = () => {
     setFormData({
-      points: '',
-      assists: '',
-      rebounds: '',
+      points: 0,
+      assists: 0,
+      rebounds: 0,
       opponentTeam: '',
       result: '',
     });
@@ -82,21 +104,29 @@ const StatsForm = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    setErrorMessage('');
+    setSuccessMessage('');
+
+    if (formData.opponentTeam === '' || formData.result === '') {
+      setErrorMessage('Please select opponent team and result.');
+      return;
+    }
+
     if (
-      formData.points === '' ||
-      formData.assists === '' ||
-      formData.rebounds === '' ||
-      formData.opponentTeam === '' ||
-      formData.result === ''
+      Number(formData.points) < 0 ||
+      Number(formData.assists) < 0 ||
+      Number(formData.rebounds) < 0
     ) {
-      alert('Please fill all fields');
+      setErrorMessage('Stats cannot be negative.');
       return;
     }
 
     if (editingIndex !== null) {
       await saveEditedGame(formData);
+      setSuccessMessage('Game stats updated successfully.');
     } else {
       await addGame(formData);
+      setSuccessMessage('Game stats added successfully.');
     }
 
     resetForm();
@@ -108,6 +138,18 @@ const StatsForm = ({
         {editingIndex !== null ? 'Edit Game Stats' : 'Add Game Stats'}
       </h3>
 
+      {errorMessage && (
+        <div className="alert alert-danger" role="alert">
+          {errorMessage}
+        </div>
+      )}
+
+      {successMessage && (
+        <div className="alert alert-success" role="alert">
+          {successMessage}
+        </div>
+      )}
+
       <form onSubmit={handleSubmit}>
         <div className="row g-3">
           <div className="col-md-3">
@@ -118,6 +160,7 @@ const StatsForm = ({
               className="form-control"
               value={formData.points}
               onChange={handleChange}
+              min="0"
             />
           </div>
 
@@ -129,6 +172,7 @@ const StatsForm = ({
               className="form-control"
               value={formData.assists}
               onChange={handleChange}
+              min="0"
             />
           </div>
 
@@ -140,6 +184,7 @@ const StatsForm = ({
               className="form-control"
               value={formData.rebounds}
               onChange={handleChange}
+              min="0"
             />
           </div>
 
@@ -186,6 +231,8 @@ const StatsForm = ({
               onClick={() => {
                 setEditingIndex(null);
                 resetForm();
+                setErrorMessage('');
+                setSuccessMessage('');
               }}
             >
               Cancel
