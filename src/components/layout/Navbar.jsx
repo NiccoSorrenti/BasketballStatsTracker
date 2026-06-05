@@ -27,9 +27,7 @@ const Navbar = () => {
       <span className="navbar-brand">Basketball Stats Tracker</span>
 
       <div className="d-flex align-items-center gap-3">
-        {user && (
-          <span className="text-white">Welcome, {user.username} 👋</span>
-        )}
+        {user && <span className="text-white">Welcome, {user.username}</span>}
 
         <button
           className="btn btn-outline-warning btn-sm"
