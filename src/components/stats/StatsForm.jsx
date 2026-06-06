@@ -153,10 +153,11 @@ const StatsForm = ({
       <form onSubmit={handleSubmit}>
         <div className="row g-3">
           <div className="col-md-3">
+            <label className="form-label">Points</label>
+
             <input
               type="number"
               name="points"
-              placeholder="Points"
               className="form-control"
               value={formData.points}
               onChange={handleChange}
@@ -165,10 +166,11 @@ const StatsForm = ({
           </div>
 
           <div className="col-md-3">
+            <label className="form-label">Assists</label>
+
             <input
               type="number"
               name="assists"
-              placeholder="Assists"
               className="form-control"
               value={formData.assists}
               onChange={handleChange}
@@ -177,10 +179,11 @@ const StatsForm = ({
           </div>
 
           <div className="col-md-3">
+            <label className="form-label">Rebounds</label>
+
             <input
               type="number"
               name="rebounds"
-              placeholder="Rebounds"
               className="form-control"
               value={formData.rebounds}
               onChange={handleChange}
@@ -189,13 +192,15 @@ const StatsForm = ({
           </div>
 
           <div className="col-md-3">
+            <label className="form-label">Opponent Team</label>
+
             <select
               name="opponentTeam"
               className="form-select"
               value={formData.opponentTeam}
               onChange={handleChange}
             >
-              <option value="">Opponent Team</option>
+              <option value="">Select Team</option>
 
               {nbaTeams.map((team) => (
                 <option key={team} value={team}>
@@ -206,13 +211,15 @@ const StatsForm = ({
           </div>
 
           <div className="col-md-3">
+            <label className="form-label">Result</label>
+
             <select
               name="result"
               className="form-select"
               value={formData.result}
               onChange={handleChange}
             >
-              <option value="">Result</option>
+              <option value="">Select Result</option>
               <option value="WIN">Win</option>
               <option value="LOSS">Loss</option>
             </select>
